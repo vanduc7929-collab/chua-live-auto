@@ -1,7 +1,6 @@
-FROM node:20-bullseye
+FROM node:20-bookworm
 
-# Cài đặt FFmpeg, Chromium, Xvfb và cấu hình múi giờ Việt Nam
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     ffmpeg \
     xvfb \
     chromium \
