@@ -6,6 +6,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
     pulseaudio \
     pulseaudio-utils \
+    fonts-noto-color-emoji \
+    fonts-dejavu-core \
     curl \
     git \
     tzdata \
