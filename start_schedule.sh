@@ -21,7 +21,7 @@ Xvfb :99 -screen 0 720x1280x24 &
 export DISPLAY=:99
 sleep 3
 
-# 3. Mở giao diện Hồ Câu (transparent=0: HIỆN ĐỦ BẦU TRỜI, MẶT NƯỚC, CẦU CẢNG)
+# 3. Mở giao diện Hồ Câu (BỎ HOÀN TOÀN transparent ĐỂ HIỆN BẦU TRỜI XANH VÀ MẶT HỒ)
 echo "[3/4] Mở giao diện Hồ Câu Cá Full đồ họa..."
 chromium --no-sandbox \
          --kiosk \
@@ -30,10 +30,11 @@ chromium --no-sandbox \
          --disable-gpu \
          --js-flags="--max-old-space-size=256" \
          --disable-infobars \
-         --disable-features=Translate \
+         --lang=vi \
+         --disable-features=Translate,OptimizationHints \
          --no-default-browser-check \
          --autoplay-policy=no-user-gesture-required \
-         "http://localhost:${APP_PORT}/?transparent=0&mock=0" &
+         "http://localhost:${APP_PORT}/?mock=0" &
 sleep 8
 
 # VÒNG LẶP TREO LIVE 24/7 (HD 720P FULL MÀU SẮC & ÂM THANH)
