@@ -15,14 +15,14 @@ echo "[1/4] Khởi động Server Game trên cổng $APP_PORT với kênh @$TIKT
 node server/index.js &
 sleep 8
 
-# 2. Tạo màn hình ảo 720x1280 (Chuẩn HD nhẹ mượt cho máy chủ Cloud)
+# 2. Tạo màn hình ảo 720x1280
 echo "[2/4] Khởi tạo màn hình ảo Xvfb 720x1280..."
 Xvfb :99 -screen 0 720x1280x24 &
 export DISPLAY=:99
 sleep 3
 
-# 3. Mở giao diện Hồ Câu trên Chromium với tối ưu RAM
-echo "[3/4] Mở giao diện Hồ Câu Cá..."
+# 3. Mở giao diện Hồ Câu (transparent=0: HIỆN ĐỦ BẦU TRỜI, MẶT NƯỚC, CẦU CẢNG)
+echo "[3/4] Mở giao diện Hồ Câu Cá Full đồ họa..."
 chromium --no-sandbox \
          --kiosk \
          --window-size=720,1280 \
@@ -31,11 +31,12 @@ chromium --no-sandbox \
          --js-flags="--max-old-space-size=256" \
          --disable-infobars \
          --disable-features=Translate \
+         --no-default-browser-check \
          --autoplay-policy=no-user-gesture-required \
-         "http://localhost:${APP_PORT}/?transparent=1&mock=0" &
+         "http://localhost:${APP_PORT}/?transparent=0&mock=0" &
 sleep 8
 
-# VÒNG LẶP TREO LIVE 24/7 (HD 720P SIÊU MƯỢT, KHÔNG BAO GIỜ BỊ CRASH RAM)
+# VÒNG LẶP TREO LIVE 24/7 (HD 720P FULL MÀU SẮC & ÂM THANH)
 echo "=== BẮT ĐẦU PHÁT LUỒNG CÂU CÁ LÊN TIKTOK ==="
 while true; do
     echo "[$(date)] FFmpeg đang đẩy luồng Câu Cá lên TikTok RTMP..."
