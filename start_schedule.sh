@@ -64,7 +64,7 @@ fs.writeFileSync('packages/music/tracks.js', trk);
 
 // 4. Thu ngắn biển (WL=920 thay vì 720), giảm spotZoom=1.42 để không mất chữ khi zoom trong public/js/01-setup.js
 let s01 = fs.readFileSync('public/js/01-setup.js', 'utf8');
-s01 = s01.replace('WL=720', 'WL=920').replace('spotZoom:1.8', 'spotZoom:1.42').replace('sfxVolume:.5,musicVolume:.35', 'sfxVolume:.75,musicVolume:.55');
+s01 = s01.replace('WL=720', 'WL=920').replace('spotZoom:1.8', 'spotZoom:1.42').replace('sfxVolume:.5,musicVolume:.35', 'sfxVolume:.75,musicVolume:.55').replace('qteSeconds:12,qteStart:35,qteDecay:3.5,qtePush:7,qtePushOwner:12,qteLike:1', 'qteSeconds:16,qteStart:50,qteDecay:2.0,qtePush:12,qtePushOwner:20,qteLike:2.5');
 fs.writeFileSync('public/js/01-setup.js', s01);
 
 // 5. Căn lại vị trí đứng câu cá (slotPos) vào giữa màn hình điện thoại (X=165..837, Y=675..909) trong public/js/03-state.js
