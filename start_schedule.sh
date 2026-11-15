@@ -155,9 +155,9 @@ const newGift = `const p=players.get(u.id)||join(u);if(p){makeVip(p);p.keep=T+GC
 s05 = s05.replace(targetGift, newGift);
 
 // Rút gọn câu đọc vinh danh / kỷ lục trong 05-logic.js
-s05 = s05.replace(/say\(`\$\{p\.name\} đã phá kỷ lục, vươn lên top một!`\)/, "say(`Cần thủ ${(p.name||'').slice(0,8)} đã lên top một!`");
-s05 = s05.replace(/say\(`Chúc mừng \$\{p\.name\} câu được \$\{L\.n\} nặng \$\{Math\.round\(L\.kg\)\} ký!`,true\)/, "say(`Chúc mừng ${(p.name||'').slice(0,8)} bắt được ${L.n}!`,true)");
-s05 = s05.replace(/say\(`Cảm ơn \$\{u\.name\} đã tặng quà\.`\+\(comment\?' '\+comment:''\),true\)/, "say(`Cảm ơn ${(u.name||'').slice(0,8)} đã tặng quà!`,true)");
+s05 = s05.replace(/say\(`\${p\.name\} đã phá kỷ lục, vươn lên top một!`/, "say(`Cần thủ ${(p.name||'').slice(0,8)} đã lên top một!`");
+s05 = s05.replace(/say\(`Chúc mừng \${p\.name\} câu được \${L\.n\} nặng \${Math\.round\(L\.kg\)\} ký!`,true\)/, "say(`Chúc mừng ${(p.name||'').slice(0,8)} bắt được ${L.n}!`,true)");
+s05 = s05.replace(/say\(`Cảm ơn \${u\.name\} đã tặng quà\.\`\+\(comment\?' '\+comment:''\),true\)/, "say(`Cảm ơn ${(u.name||'').slice(0,8)} đã tặng quà!`,true)");
 fs.writeFileSync('public/js/05-logic.js', s05);
 
 // 7. Tinh chỉnh Spotlight, Du thuyền VIP 5 phút (300s) CHỈ DÀNH CHO NGƯỜI TẶNG QUÀ trong public/js/05a-spotlight.js
@@ -191,8 +191,8 @@ const newMakeVip = `function makeVip(p){if(!p)return;const o=[...players.values(
  p.vip=T+GC.vipSeconds;p.vi=vi;p.slot=-1;p.keep=Math.max(p.keep,p.vip);LOG(\`👑 \${p.name} lên du thuyền VIP \${GC.vipSeconds}s\`)}`;
 s05a = s05a.replace(targetMakeVip, newMakeVip);
 
-s05a = s05a.replace(/sayNow\(`Cá lớn cắn câu! Mọi người spam KEO và thả tim giúp \$\{p\.name\} kéo lên!`\)/, "sayNow(`Thủy Quái cắn câu! Spam KEO kéo lên nào!`)");
-s05a = s05a.replace(/sayNow\(`Chúc mừng \$\{p\.name\} câu được \$\{L\.n\} nặng \$\{Math\.round\(L\.kg\)\} ký\$\{p\.rec\?'\. Kỷ lục mới của phòng!':'!'\}`\)/, "sayNow(`Chúc mừng ${(p.name||'').slice(0,8)} bắt được ${L.n}!`)");
+s05a = s05a.replace(/sayNow\(`Cá lớn cắn câu! Mọi người spam KEO và thả tim giúp \${p\.name\} kéo lên!\`\)/, "sayNow(`Thủy Quái cắn câu! Spam KEO kéo lên nào!`)");
+s05a = s05a.replace(/sayNow\(`Chúc mừng \${p\.name\} câu được \${L\.n\} nặng \${Math\.round\(L\.kg\)\} ký\${p\.rec\?'\. Kỷ lục mới của phòng!':'!'\}\`\)/, "sayNow(`Chúc mừng ${(p.name||'').slice(0,8)} bắt được ${L.n}!\`)");
 
 // Bảng Vinh danh TOP cần thủ mỗi 15 phút (vinh danh ca)
 const shiftBannerCode = `
@@ -211,7 +211,7 @@ function drawCard(){
       txt('Chưa có cần thủ nào lên điểm!', 540, 630, 26, '#cbd5e1');
     } else {
       shiftRank.top.forEach((s, i) => {
-        const y = 535 + i * 85;
+        const y = 535 + i * 85; 
         g.fillStyle = 'rgba(255,255,255,0.08)'; g.beginPath(); g.roundRect(195, y - 40, 690, 70, 16); g.fill();
         txt(['🥇','🥈','🥉'][i] || ('#' + (i+1)), 235, y + 8, 32);
         txt(s.name.slice(0, 10), 285, y + 8, 26, '#fff', 'left');
@@ -238,8 +238,8 @@ const newDrawQTE = `function drawQTE(){const p=inQte();if(!p)return;const left=M
  txt('🎁 Tặng Quà bất kỳ = GIẬT ĐIỆN kéo lên ngay!',W/2,y+112,20,'#7dffb0')}`;
 s05b = s05b.replace(/function drawQTE\(\)\{[\s\S]*?GIẬT ĐIỆN`,W\/2,y\+120,28,'#ffd700'\)\}/, newDrawQTE);
 s05b = s05b.replace('H-110,36', '1240,26');
-s05b = s05b.replace(/sayNow\(pick\(\[`Ôi không! Đứt dây rồi![\s\S]*?khóc thét!`\]\)\)/, "sayNow('Tiếc quá, đứt dây mất rồi!')");
-s05b = s05b.replace(/sayNow\(`Cần thần giật điện! \$\{p\.name\} kéo thẳng cá lên luôn!`\)/, "sayNow(`Cần thần giật điện! ${(p.name||'').slice(0,8)} kéo cá lên bờ!`)");
+s05b = s05b.replace(/sayNow\(pick\(\[\`Ôi không! Đứt dây rồi![\s\S]*?khóc thét!\`\]\)\)/, "sayNow('Tiếc quá, đứt dây mất rồi!')");
+s05b = s05b.replace(/sayNow\(\`Cần thần giật điện! \${p\.name\} kéo thẳng cá lên luôn!\`\)/, "sayNow(`Cần thần giật điện! ${(p.name||'').slice(0,8)} kéo cá lên bờ!`)");
 fs.writeFileSync('public/js/05b-comedy.js', s05b);
 
 // 9. Giới hạn vùng cá bơi từ Y=960..1460 (trên khung bình luận TikTok) trong public/js/06-fish.js
@@ -254,8 +254,9 @@ let shiftTimer = 900;
 function resetShift(){
   const topList = Object.values(scores).sort((a,b)=>b.kg-a.kg).slice(0,3);
   shiftRank = { t: 15, top: topList };
+  if(SP.p){SP.out=true;SP.after=null;}
   for(const p of players.values()){
-    p.vip = 0; p.st = 'idle'; p.t = 0; p.loot = null;
+    p.vip = 0; p.sp = 0; p.again = 0; p.st = 'idle'; p.t = 0; p.loot = null; p.la = T; 
   }
   for(const k in scores) delete scores[k];
   leader = null; roomBest = 0;
@@ -340,21 +341,11 @@ const newHud = `function hud(){
 s08 = s08.replace(/function hud\(\)\{[\s\S]*?function draw\(\)/, newHud + '\nfunction draw()');
 fs.writeFileSync('public/js/08-render.js', s08);
 
-// 11. XỬ LÝ CHAT CHUẨN XÁC: Gõ 'Câu' thả cần ngay lập tức và dọn dẹp người xem thoát live trong public/js/09-events.js
+// 11. XỬ LÝ CHAT CHUẨN XÁC: Gõ 'Câu' thả cần ngay lập tức và dọn dẹp người xem thoát live sau 10s không tương tác trong public/js/09-events.js
 let s09 = fs.readFileSync('public/js/09-events.js', 'utf8');
 const memberPatch = `
 let lastJoinWelcome=0;
-const lastActive = new Map();
-setInterval(()=>{
-  const now = Date.now();
-  for(const [id, p] of players.entries()){
-    const la = lastActive.get(id) || p.createdAt || now;
-    if(now - la > 450000 && !p.vip && p.st === 'idle'){
-      leave(p);
-      lastActive.delete(id);
-    }
-  }
-}, 15000);
+function touch(u){const id=u&&(u.id||u.name);if(!id)return;const gp=players.get(id);if(gp)gp.la=T;}
 
 const H_={
  member:u=>{
@@ -366,13 +357,14 @@ const H_={
  },
  chat:u=>{
    energyAdd(GC.chatEnergy);
-   if(u.id) lastActive.set(u.id, Date.now());
+   touch(u);
    const raw = String(u.comment || '').toLowerCase().trim();
-   const isNew = !players.has(u.id);
+   const isNew = !players.has(u.id||u.name);
    let p = null;
-   if(raw.includes('cau') || raw.includes('câu') || raw.includes('thả') || isNew){
+   const nn = norm(u.comment);
+   if(nn.includes('cau') || nn.includes('thacan') || raw.includes('câu') || isNew){
      p = join(u);
-     if(p && !p.createdAt) p.createdAt = Date.now();
+     if(p) p.la = T;
    }
    if(isNew && p && Date.now()-lastJoinWelcome>8000){
      lastJoinWelcome=Date.now();
@@ -382,6 +374,9 @@ const H_={
    if(raw.includes('nemdep') || raw.includes('ném dép')) throwSlip(u);
  },`;
 s09 = s09.replace(/const H_=\{chat:u=>\{[^}]+\},/, memberPatch);
+s09 = s09.replace('like:u=>{energyAdd', 'like:u=>{touch(u);energyAdd');
+s09 = s09.replace('follow:u=>{join(u);', 'follow:u=>{join(u);touch(u);');
+s09 = s09.replace('gift:u=>gift(u,u.coins,u.comment)', 'gift:u=>{touch(u);gift(u,u.coins,u.comment);touch(u)}');
 fs.writeFileSync('public/js/09-events.js', s09);
 
 // 12. Ẩn triệt để thanh Google Translate trong public/index.html
@@ -390,6 +385,18 @@ if (!idx.includes('notranslate')) {
   idx = idx.replace('<head>', '<head><meta name="google" content="notranslate">');
   fs.writeFileSync('public/index.html', idx);
 }
+// 13. HOTFIX: không kẹt giằng co, camera luôn zoom về, gõ "Câu" lúc đang bận sẽ xếp lượt, 10s không tương tác rời cầu
+const must = (file, from, to) => { let s = fs.readFileSync(file, 'utf8'); if (!s.includes(from)) { console.error('❌ PATCH MISS ' + file + ': ' + from.slice(0, 60)); process.exitCode = 1; return; } s = s.split(from).join(to); fs.writeFileSync(file, s); };
+must('public/js/07-update.js', "if(SP.p!==p){p.t=0;continue}", "if(SP.p!==p){p.st='reel';p.t=0;continue}");
+must('public/js/07-update.js', "p.st=(GC.spotlight&&q.focus&&(q.tier==='legend'||(!SP.p&&T>=spotCool)))?'epic':'reel'", "p.st=(GC.spotlight&&q.focus&&!SP.p&&!SP.out&&(q.tier==='legend'||T>=spotCool))?'epic':'reel';if(p.st==='epic'&&!spotReq(p,'catch',q.tier==='legend')){p.st='reel'}");
+must('public/js/07-update.js', "if(p.vip&&T>=p.vip){p.vip=0;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));p.slot=fs!==undefined?fs:0;p.st='idle';}", "if(p.vip&&T>=p.vip&&SP.p!==p){p.vip=0;p.la=T;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));if(fs!==undefined){p.slot=fs;if(!['cast','wait','bite','reel','show'].includes(p.st))p.st='idle';}else{drop.push(p);continue;}}");
+must('public/js/07-update.js', "for(const p of players.values()){", "const drop=[];\n for(const p of players.values()){\n if(!p.vip&&p.st==='idle'&&T-(p.la||0)>=10){drop.push(p);continue}");
+must('public/js/07-update.js', "else{p.loot=null;if(p.sp){p.sp=0;spotEnd(p)}p.st='idle';p.t=0;}}}", "else{p.loot=null;if(p.sp){p.sp=0;spotEnd(p)}if(p.again){p.again=0;p.st='cast';p.wait=R(1.5,3);SFX.cast()}else{p.st='idle'}p.t=0;}}}\n drop.forEach(leave);");
+must('public/js/05-logic.js', "const ex=players.get(u.id);", "const ex=players.get(u.id);ex.la=T;");
+must('public/js/05-logic.js', "ex.st='cast';ex.t=0;ex.wait=R(2,5);SFX.cast();\n    }\n    return ex;", "ex.st='cast';ex.t=0;ex.wait=R(2,5);SFX.cast();\n    } else ex.again=1;\n    return ex;");
+must('public/js/05-logic.js', "boost:0,keep:0,loot:null};", "boost:0,keep:0,loot:null,la:T};");
+must('public/js/05b-comedy.js', "function tugFail(p){", "function tugFail(p){SP.out=true;SP.after=null;");
+must('public/js/05a-spotlight.js', "if(!SP.out&&(SP.t>30||", "if(!SP.out&&(SP.t>30||(SP.k==='catch'&&p.st!=='epic'&&p.st!=='show'&&p.st!=='fall')||");
 console.log('✅ Đã áp dụng toàn bộ bản vá Giao diện Mobile Safe-Area & Giọng AI Tiếng Việt!');
 EOF
 node patch_game.js
