@@ -326,11 +326,11 @@ const newHud = `function hud(){
  txt('💪 Gõ "KEO" → Phụ kéo Thủy Quái',568,414,17,'#7dffb0','left');
  txt('🎁 Tặng Quà → Lên VIP 5 phút',568,442,17,'#ffd700','left');
 
- // Thanh Năng Lượng Bão Cá Vàng (X=135..945, Y=466..504)
- g.fillStyle='rgba(0,0,0,0.72)';g.beginPath();g.roundRect(135,466,810,38,19);g.fill();
+ // Thanh Năng Lượng Bão Cá Vàng (đặt trên 2 bảng: X=135..945, Y=248..284)
+ g.fillStyle='rgba(0,0,0,0.72)';g.beginPath();g.roundRect(135,248,810,36,18);g.fill();
  g.fillStyle=frenzy>0?'#ffd700':'#ff4d8d';
- g.beginPath();g.roundRect(139,470,Math.max(12,802*(frenzy>0?frenzy/GC.frenzySeconds:energy/100)),30,15);g.fill();
- txt(frenzy>0?'🌟 BÃO CÁ VÀNG '+Math.ceil(frenzy)+'s (x2 ĐIỂM)':'⚡ Năng lượng Bão Cá: '+Math.floor(energy)+'% (Thả tim + Bình luận)',540,492,18);
+ g.beginPath();g.roundRect(139,252,Math.max(12,802*(frenzy>0?frenzy/GC.frenzySeconds:energy/100)),28,14);g.fill();
+ txt(frenzy>0?'🌟 BÃO CÁ VÀNG '+Math.ceil(frenzy)+'s (x2 ĐIỂM)':'⚡ Năng lượng Bão Cá: '+Math.floor(energy)+'% (Thả tim + Bình luận)',540,272,18);
 
  if(banner.t>0){
    g.fillStyle='rgba(0,0,0,0.8)';g.beginPath();g.roundRect(160,520,760,54,16);g.fill();
