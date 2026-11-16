@@ -141,7 +141,7 @@ const targetJoin = "function join(u){u.id=u.id||u.name;if(!u.id){LOG('Bỏ qua s
 const newJoin = `function join(u){u.id=u.id||u.name;if(!u.id){LOG('Bỏ qua sự kiện không có id/tên','warn');return null}
   if(players.has(u.id)){
     const ex=players.get(u.id);ex.la=T;
-    if(ex.st==='idle'||((ex.st==='show'||ex.st==='fall')&&!ex.sp&&SP.p!==ex)){
+    if(ex.st==='idle'||((ex.st==='show'||ex.st==='fall')&&!ex.sp&&(SP.p!==ex||SP.out))){
       ex.again=0;ex.loot=null;ex.st='cast';ex.t=0;ex.wait=R(2,5);SFX.cast();
     } else ex.again=1;
     return ex;
@@ -164,9 +164,9 @@ s05 = s05.replace(targetGift, newGift);
 s05 = s05.replace("else{p.boost=3;if(p.st!=='epic'&&p.st!=='fall'&&!p.sp){p.st='cast';p.t=0;p.wait=1.5}burst(p.x0,p.y-60,30,'#ff7a18',250);say(`Cảm ơn ${u.name} đã tặng quà.`+(comment?' '+comment:''),true)}}", "p.boost=3;if(p.st!=='epic'&&p.st!=='fall'&&!p.sp){p.st='cast';p.t=0;p.wait=1.5}burst(p.x0,p.y-60,30,'#ff7a18',250);say(`Cảm ơn ${(u.name||'').slice(0,8)} đã tặng quà!`,true)}}");
 
 // Rút gọn câu đọc vinh danh / kỷ lục trong 05-logic.js
-s05 = s05.replace(/say\(`\${p\.name\} đã phá kỷ lục, vươn lên top một!\`/, "say(`Cần thủ ${(p.name||'').slice(0,8)} đã lên top một!`");
-s05 = s05.replace(/say\(`Chúc mừng \${p\.name\} câu được \${L\.n\} nặng \${Math\.round\(L\.kg\)\} ký!\`,true\)/, "say(`Chúc mừng ${(p.name||'').slice(0,8)} bắt được ${L.n}!`,true)");
-s05 = s05.replace(/say\(`Cảm ơn \${u\.name\} đã tặng quà\.\`\+\(comment\?' '\+comment:''\),true\)/, "say(`Cảm ơn ${(u.name||'').slice(0,8)} đã tặng quà!`,true)");
+s05 = s05.replace(/say\(`\$\{p\.name\} đã phá kỷ lục, vươn lên top một!`/, "say(`Cần thủ ${(p.name||'').slice(0,8)} đã lên top một!`");
+s05 = s05.replace(/say\(`Chúc mừng \$\{p\.name\} câu được \$\{L\.n\} nặng \$\{Math\.round\(L\.kg\)\} ký!`,true\)/, "say(`Chúc mừng ${(p.name||'').slice(0,8)} bắt được ${L.n}!`,true)");
+s05 = s05.replace(/say\(`Cảm ơn \$\{u\.name\} đã tặng quà\.\`\+\(comment\?' '\+comment:''\),true\)/, "say(`Cảm ơn ${(u.name||'').slice(0,8)} đã tặng quà!`,true)");
 fs.writeFileSync('public/js/05-logic.js', s05);
 
 // 7. Tinh chỉnh Spotlight, Du thuyền VIP 5 phút (300s) CHỈ DÀNH CHO NGƯỜI TẶNG QUÀ trong public/js/05a-spotlight.js
@@ -200,8 +200,8 @@ const newMakeVip = `function makeVip(p){if(!p)return;const o=[...players.values(
  p.vip=T+GC.vipSeconds;p.vi=vi;p.slot=-1;p.keep=Math.max(p.keep,p.vip);LOG(\`👑 \${p.name} lên du thuyền VIP \${GC.vipSeconds}s\`)}`;
 s05a = s05a.replace(targetMakeVip, newMakeVip);
 
-s05a = s05a.replace(/sayNow\(`Cá lớn cắn câu! Mọi người spam KEO và thả tim giúp \${p\.name\} kéo lên!\`\)/, "sayNow(`Thủy Quái cắn câu! Spam KEO kéo lên nào!`)");
-s05a = s05a.replace(/sayNow\(`Chúc mừng \${p\.name\} câu được \${L\.n\} nặng \${Math\.round\(L\.kg\)\} ký\${p\.rec\?'\. Kỷ lục mới của phòng!':'!'\}\`\)/, "sayNow(`Chúc mừng ${(p.name||'').slice(0,8)} bắt được ${L.n}!`);
+s05a = s05a.replace(/sayNow\(`Cá lớn cắn câu! Mọi người spam KEO và thả tim giúp \$\{p\.name\} kéo lên!\`\)/, "sayNow(`Thủy Quái cắn câu! Spam KEO kéo lên nào!`)");
+s05a = s05a.replace(/sayNow\(`Chúc mừng \$\{p\.name\} câu được \$\{L\.n\} nặng \$\{Math\.round\(L\.kg\)\} ký\$\{p\.rec\?'\. Kỷ lục mới của phòng!':'!'\}\`\)/, "sayNow(`Chúc mừng ${(p.name||'').slice(0,8)} bắt được ${L.n}!`)");
 
 // Bảng Vinh danh TOP cần thủ mỗi 15 phút (vinh danh ca)
 const shiftBannerCode = `
@@ -247,8 +247,8 @@ const newDrawQTE = `function drawQTE(){const p=inQte();if(!p)return;const left=M
  txt('🎁 Tặng Quà bất kỳ = GIẬT ĐIỆN kéo lên ngay!',W/2,y+112,20,'#7dffb0')}`;
 s05b = s05b.replace(/function drawQTE\(\)\{[\s\S]*?GIẬT ĐIỆN`,W\/2,y\+120,28,'#ffd700'\)\}/, newDrawQTE);
 s05b = s05b.replace('H-110,36', '1240,26');
-s05b = s05b.replace(/sayNow\(pick\(\[`Ôi không! Đứt dây rồi![\s\S]*?khóc thét!`\]\)\)/, "sayNow('Tiếc quá, đứt dây mất rồi!')");
-s05b = s05b.replace(/sayNow\(`Cần thần giật điện! \${p\.name\} kéo thẳng cá lên luôn!\`\)/, "sayNow(`Cần thần giật điện! ${(p.name||'').slice(0,8)} kéo cá lên bờ!`)");
+s05b = s05b.replace(/sayNow\(pick\(\[\`Ôi không! Đứt dây rồi![\s\S]*?khóc thét!\`\]\)\)/, "sayNow('Tiếc quá, đứt dây mất rồi!')");
+s05b = s05b.replace(/sayNow\(\`Cần thần giật điện! \$\{p\.name\} kéo thẳng cá lên luôn!\`\)/, "sayNow(`Cần thần giật điện! ${(p.name||'').slice(0,8)} kéo cá lên bờ!`)");
 fs.writeFileSync('public/js/05b-comedy.js', s05b);
 
 // 9. Giới hạn vùng cá bơi từ Y=960..1460 (trên khung bình luận TikTok) trong public/js/06-fish.js
@@ -328,7 +328,7 @@ const newHud = `function hud(){
 
  // Bảng Phải: HƯỚNG DẪN CÁCH CHƠI (X=550..945, Y=295..455)
  g.fillStyle='rgba(0,0,0,0.78)';g.strokeStyle='#38bdf8';g.lineWidth=2.5;
- g.beginPath();g.roundRect(550,295,395,160,18);g.fill();
+ g.beginPath();g.roundRect(550,295,395,160,18);g.fill();g.stroke();
  txt('📜 HƯỚNG DẪN CÁCH CHƠI',747,326,20,'#38bdf8','center');
  txt('💬 Gõ "Câu" → Ra cầu thả cần',568,358,17,'#fff','left');
  txt('❤️ Thả tim → Cá nhanh cắn câu',568,386,17,'#ff8fa3','left');
@@ -399,7 +399,7 @@ const must = (file, from, to) => { let s = fs.readFileSync(file, 'utf8'); if (!s
 must('public/js/07-update.js', "if(SP.p!==p){p.t=0;continue}", "if(SP.p!==p){p.st='reel';p.t=0;continue}");
 must('public/js/07-update.js', "p.st=(GC.spotlight&&q.focus&&(q.tier==='legend'||(!SP.p&&T>=spotCool)))?'epic':'reel'", "p.st=(GC.spotlight&&q.focus&&!SP.p&&!SP.out&&(q.tier==='legend'||T>=spotCool))?'epic':'reel';if(p.st==='epic'&&!spotReq(p,'catch',q.tier==='legend')){p.st='reel'}");
 must('public/js/07-update.js', "if(p.vip&&T>=p.vip){p.vip=0;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));p.slot=fs!==undefined?fs:0;p.st='idle';}", "if(p.vip&&T>=p.vip&&SP.p!==p){p.vip=0;p.la=T;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));if(fs!==undefined){p.slot=fs;if(!['cast','wait','bite','reel','show'].includes(p.st))p.st='idle';}else{drop.push(p);continue;}}");
-must('public/js/07-update.js', "for(const p of players.values()){", "const drop=[];\n for(const p of players.values()){\n if(!p.vip&&p.st==='idle'&&T-(p.la||0)>=10){drop.push(p);continue}");
+must('public/js/07-update.js', "fish.forEach(f=>{f.x+=f.v*dt;if(f.x>W+80)f.x=-80;if(f.x<-80)f.x=W+80});\n for(const p of players.values()){", "fish.forEach(f=>{f.x+=f.v*dt;if(f.x>W+80)f.x=-80;if(f.x<-80)f.x=W+80});\n const drop=[];\n for(const p of players.values()){\n if(!p.vip&&p.st==='idle'&&T-(p.la||0)>=10){drop.push(p);continue}");
 must('public/js/07-update.js', "else{p.loot=null;if(p.sp){p.sp=0;spotEnd(p)}p.st='idle';p.t=0;}}}", "else{p.loot=null;if(p.sp){p.sp=0;spotEnd(p)}if(p.again){p.again=0;p.st='cast';p.wait=R(1.5,3);SFX.cast()}else{p.st='idle'}p.t=0;}}}\n drop.forEach(leave);");
 must('public/js/05b-comedy.js', "function tugFail(p){", "function tugFail(p){SP.out=true;SP.after=null;");
 must('public/js/05a-spotlight.js', "if(SP.p&&!players.has(SP.p.id))SP.p=null;", "if(SP.p&&!players.has(SP.p.id)){SP.p=null;SP.out=false;}\n if(!SP.p)SP.out=false;");
