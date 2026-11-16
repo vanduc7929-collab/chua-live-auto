@@ -154,16 +154,16 @@ let s05 = fs.readFileSync('public/js/05-logic.js', 'utf8');
 const targetJoin = "function join(u){u.id=u.id||u.name;if(!u.id){LOG('Bỏ qua sự kiện không có id/tên','warn');return null}if(players.has(u.id))return null;\n if(players.size>=MAX){if(queue.length<50&&!queue.find(q=>q.id===u.id))queue.push(u);return null}\n const f=[...Array(MAX).keys()].find(i=>!used().has(i)),p={...u,slot:f,st:'cast',t:0,wait:R(2,5),boost:0,keep:0,loot:null};";
 const newJoin = `function join(u){u.id=u.id||u.name;if(!u.id){LOG('Bỏ qua sự kiện không có id/tên','warn');return null}
   if(players.has(u.id)){
-    const ex=players.get(u.id);ex.la=T;ex.idleAt=T;
-    if(ex.st==='idle'||((ex.st==='show'||ex.st==='fall')&&!ex.sp&&(SP.p!==ex||SP.out))){
-      ex.again=0;ex.loot=null;ex.st='cast';ex.t=0;ex.wait=R(2,5);SFX.cast();LOG('🎣 '+ex.name+' thả cần lại');
-    } else {ex.again=1;LOG('🎣 '+ex.name+' xếp lượt câu tiếp ('+ex.st+')');}
+    const ex=players.get(u.id);ex.again=1;
+    if((ex.st==='show'||ex.st==='fall')&&!ex.sp&&(SP.p!==ex||SP.out)){
+      ex.again=0;ex.loot=null;ex.st='cast';ex.t=0;ex.wait=R(2,5);SFX.cast();LOG('🎣 '+ex.name+' thả cần tiếp');
+    }
     return ex;
   }
   const dockCnt=[...players.values()].filter(q=>!q.vip).length;
   if(dockCnt>=MAX){if(queue.length<50&&!queue.find(q=>q.id===u.id))queue.push(u);return null}
   const f=[...Array(MAX).keys()].find(i=>!used().has(i));if(f===undefined)return null;
-  const p={...u,slot:f,st:'cast',t:0,wait:R(2,5),boost:0,keep:0,loot:null,la:T,idleAt:T};`;
+  const p={...u,slot:f,st:'cast',t:0,wait:R(2,5),boost:0,keep:0,loot:null};`;
 s05 = s05.replace(targetJoin, newJoin);
 
 const targetGift = "function gift(u,coins,comment){LOG(`quà ${u.name}: ${coins} xu`);\n const q=inQte(),own=q&&u.id===q.id;if(q){if(own)zapWin(q);else tugPush(35)}                       // đang giằng co: quà chủ cần = Giật Điện, người khác = +35 lực\n if(coins===1&&!own){throwSlip(u);return}                                                          // quà 1 xu = ném dép Top 1\n const p=join(u)||players.get(u.id);if(!p)return;p.keep=T+GC.giftKeepSeconds;\n if(coins>GC.bigGiftCoins){bomb(p,coins);spotGift(p,coins);say(`${u.name} thả lưới lớn, cá khổng lồ nổi lên khắp biển!`+(comment?' '+comment:''),true)}";
@@ -211,7 +211,7 @@ const targetMakeVip = `function makeVip(p){const o=[...players.values()].filter(
  if(vi===undefined){o.sort((a,b)=>a.vip-b.vip);vi=o[0].vi;leave(o[0])}
  p.vip=T+GC.vipSeconds;p.vi=vi;p.slot=-1;p.keep=Math.max(p.keep,p.vip);LOG(\`👑 \${p.name} lên du thuyền VIP \${GC.vipSeconds}s\`)}`;
 const newMakeVip = `function makeVip(p){if(!p)return;const o=[...players.values()].filter(q=>q!==p&&q.vip&&T<q.vip);let vi=[0,1,2].find(i=>!o.some(q=>q.vi===i));
- if(vi===undefined){o.sort((a,b)=>a.vip-b.vip);vi=o[0].vi;const ex=o[0];ex.vip=0;ex.la=T;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));if(fs!==undefined){ex.slot=fs;ex.st='idle';}else{leave(ex);}}
+ if(vi===undefined){o.sort((a,b)=>a.vip-b.vip);vi=o[0].vi;const ex=o[0];ex.vip=0;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));if(fs!==undefined){ex.slot=fs;ex.st='cast';ex.t=0;ex.wait=R(2,4);}else{leave(ex);}}
  p.vip=T+GC.vipSeconds;p.vi=vi;p.slot=-1;p.keep=Math.max(p.keep,p.vip);LOG(\`👑 \${p.name} lên du thuyền VIP \${GC.vipSeconds}s\`)}`;
 s05a = s05a.replace(targetMakeVip, newMakeVip);
 
@@ -271,7 +271,7 @@ let s06 = fs.readFileSync('public/js/06-fish.js', 'utf8');
 s06 = s06.replace('R(WL+120,H-120)', 'R(WL+50,1420)').replace('R(WL+200,H-150)', 'R(WL+80,1440)').replace('H-R(40,120)', '1460-R(10,50)');
 fs.writeFileSync('public/js/06-fish.js', s06);
 
-// 9.5. Tối ưu vòng lặp: CÂU XONG NGHỈ (st='idle'), RESET CA 15 PHÚT trong public/js/07-update.js
+// 9.5. Vòng lặp câu tự động (không đứng nghỉ idle), tự rời cầu sau khi xong lượt nếu không giữ lại + RESET CA 15 PHÚT trong public/js/07-update.js
 let s07 = fs.readFileSync('public/js/07-update.js', 'utf8');
 const shiftUpdateCode = `
 let shiftTimer = 900;
@@ -279,8 +279,14 @@ function resetShift(){
   const topList = Object.values(scores).sort((a,b)=>b.kg-a.kg).slice(0,3);
   shiftRank = { t: 15, top: topList };
   if(SP.p){SP.out=true;SP.after=null;}
-  for(const p of players.values()){
-    p.vip = 0; p.sp = 0; p.again = 0; p.st = 'idle'; p.t = 0; p.loot = null; p.la = T;
+  for(const p of [...players.values()]){
+    p.vip = 0; p.sp = 0; p.again = 0; p.boost = 0; p.keep = 0; p.loot = null;
+    if(p.slot < 0){
+      const fs=[...Array(MAX).keys()].find(i=>!used().has(i));
+      if(fs!==undefined){p.slot=fs;p.st='cast';p.t=0;p.wait=R(2,4);}else{players.delete(p.id);}
+    } else if(p.st==='epic'||p.st==='fall'||p.st==='show'){
+      p.st='cast';p.t=0;p.wait=R(2,4);
+    }
   }
   for(const k in scores) delete scores[k];
   leader = null; roomBest = 0;
@@ -294,16 +300,13 @@ function update(dt,rdt=dt){
 s07 = s07.replace('function update(dt,rdt=dt){', shiftUpdateCode);
 
 const targetVipLoop = "for(const p of players.values()){const s=p.vip?vipPos(p.vi):slotPos(p.slot);";
-const newVipLoop = "for(const p of players.values()){\n if(p.vip&&T>=p.vip){p.vip=0;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));p.slot=fs!==undefined?fs:0;p.st='idle';}\n const s=p.vip?vipPos(p.vi):slotPos(p.slot);";
+const newVipLoop = "const drop=[];\n for(const p of players.values()){\n if(p.vip&&T>=p.vip&&SP.p!==p){p.vip=0;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));if(fs!==undefined){p.slot=fs;}else{drop.push(p);continue;}}\n const s=p.vip?vipPos(p.vi):slotPos(p.slot);";
 s07 = s07.replace(targetVipLoop, newVipLoop);
 
-const targetLim = "const lim={cast:.8,wait:p.wait,bite:.9,reel:.8,show:p.sp?4.2:2.6,epic:GC.qteSeconds,fall:2.6}[p.st];\n  if(p.t>=lim){p.t=0;";
-const newLim = "const lim={idle:999999,cast:.8,wait:p.wait,bite:.9,reel:.8,show:p.sp?4.2:2.6,epic:GC.qteSeconds,fall:2.6}[p.st]||999999;\n  if(p.st==='idle')continue;\n  if(p.t>=lim){p.t=0;";
-s07 = s07.replace(targetLim, newLim);
-
 const targetLoopEnd = "else{p.loot=null;if(p.sp){p.sp=0;spotEnd(p)}if(p.boost>0||T<p.keep){p.st='cast';p.wait=R(2,4);SFX.cast()}else{leave(p);break}}";
-const newLoopEnd = "else{p.loot=null;if(p.sp){p.sp=0;spotEnd(p)}p.st='idle';p.t=0;}";
+const newLoopEnd = "else{p.loot=null;if(p.sp){p.sp=0;spotEnd(p)}if(p.again||p.boost>0||(p.vip&&T<p.vip)||T<p.keep){p.again=0;p.st='cast';p.wait=R(2,4);SFX.cast()}else{drop.push(p);}}";
 s07 = s07.replace(targetLoopEnd, newLoopEnd);
+s07 = s07.replace("for(const q of parts){", "drop.forEach(leave);\n for(const q of parts){");
 fs.writeFileSync('public/js/07-update.js', s07);
 
 // 10. Thiết kế lại Bầu trời, Cầu cảng và Bảng HUD Safe-Area + Đồng hồ đếm ngược 15 phút trong public/js/08-render.js
@@ -365,11 +368,10 @@ const newHud = `function hud(){
 s08 = s08.replace(/function hud\(\)\{[\s\S]*?function draw\(\)/, newHud + '\nfunction draw()');
 fs.writeFileSync('public/js/08-render.js', s08);
 
-// 11. XỬ LÝ CHAT CHUẨN XÁC: Gõ 'Câu' thả cần ngay lập tức và dọn dẹp người xem thoát live sau 10s không tương tác trong public/js/09-events.js
+// 11. XỬ LÝ CHAT NHƯ CŨ: Mọi chat/follow ra cầu câu ngay (không đứng nghỉ) trong public/js/09-events.js
 let s09 = fs.readFileSync('public/js/09-events.js', 'utf8');
 const memberPatch = `
 let lastJoinWelcome=0;
-function touch(u){const id=u&&(u.id||u.name);if(!id)return;const gp=players.get(id);if(gp){gp.la=T;gp.idleAt=T;}}
 
 const H_={
  member:u=>{
@@ -381,15 +383,9 @@ const H_={
  },
  chat:u=>{
    energyAdd(GC.chatEnergy);
-   touch(u);
    const raw = String(u.comment || '').toLowerCase().trim();
    const isNew = !players.has(u.id||u.name);
-   let p = null;
-   const nn = norm(u.comment);
-   if(nn.includes('cau') || nn.includes('tha') || raw.includes('câu') || raw.includes('🎣') || isNew){
-     p = join(u);
-     if(p){p.la = T;p.idleAt = T;LOG('💬 ' + (u.name||'?') + ' [' + raw.slice(0,20) + '] → ' + p.st + (p.again?' (xếp lượt)':''));}
-   }
+   let p = join(u);
    if(isNew && p && Date.now()-lastJoinWelcome>8000){
      lastJoinWelcome=Date.now();
      say('Cần thủ ' + (u.name||'').slice(0, 7) + ' đã ra hồ!', false);
@@ -398,9 +394,6 @@ const H_={
    if(raw.includes('nemdep') || raw.includes('ném dép')) throwSlip(u);
  },`;
 s09 = s09.replace(/const H_=\{chat:u=>\{[^}]+\},/, memberPatch);
-s09 = s09.replace('like:u=>{energyAdd', 'like:u=>{touch(u);energyAdd');
-s09 = s09.replace('follow:u=>{join(u);', 'follow:u=>{join(u);touch(u);');
-s09 = s09.replace('gift:u=>gift(u,u.coins,u.comment)', 'gift:u=>{touch(u);gift(u,u.coins,u.comment);touch(u)}');
 fs.writeFileSync('public/js/09-events.js', s09);
 
 // 12. Ẩn triệt để thanh Google Translate trong public/index.html
@@ -409,13 +402,10 @@ if (!idx.includes('notranslate')) {
   idx = idx.replace('<head>', '<head><meta name="google" content="notranslate">');
   fs.writeFileSync('public/index.html', idx);
 }
-// 13. HOTFIX: sửa triệt để SP.out kẹt giằng co, camera luôn zoom về, gõ "Câu" luôn câu tiếp, 10s không tương tác rời cầu
+// 13. HOTFIX: sửa triệt để SP.out kẹt giằng co, camera luôn zoom về
 const must = (file, from, to) => { let s = fs.readFileSync(file, 'utf8'); if (!s.includes(from)) { console.error('❌ PATCH MISS ' + file + ': ' + from.slice(0, 60)); process.exitCode = 1; return; } s = s.split(from).join(to); fs.writeFileSync(file, s); };
 must('public/js/07-update.js', "if(SP.p!==p){p.t=0;continue}", "if(SP.p!==p){p.st='reel';p.t=0;continue}");
 must('public/js/07-update.js', "p.st=(GC.spotlight&&q.focus&&(q.tier==='legend'||(!SP.p&&T>=spotCool)))?'epic':'reel'", "p.st=(GC.spotlight&&q.focus&&!SP.p&&!SP.out&&(q.tier==='legend'||T>=spotCool))?'epic':'reel';if(p.st==='epic'&&!spotReq(p,'catch',q.tier==='legend')){p.st='reel'}");
-must('public/js/07-update.js', "if(p.vip&&T>=p.vip){p.vip=0;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));p.slot=fs!==undefined?fs:0;p.st='idle';}", "if(p.vip&&T>=p.vip&&SP.p!==p){p.vip=0;p.la=T;p.idleAt=T;const fs=[...Array(MAX).keys()].find(i=>!used().has(i));if(fs!==undefined){p.slot=fs;if(!['cast','wait','bite','reel','show'].includes(p.st))p.st='idle';}else{drop.push(p);continue;}}");
-must('public/js/07-update.js', "fish.forEach(f=>{f.x+=f.v*dt;if(f.x>W+80)f.x=-80;if(f.x<-80)f.x=W+80});\n for(const p of players.values()){", "fish.forEach(f=>{f.x+=f.v*dt;if(f.x>W+80)f.x=-80;if(f.x<-80)f.x=W+80});\n const drop=[];\n for(const p of players.values()){\n if(!p.vip&&p.st==='idle'&&T-Math.max(p.la||0,p.idleAt||0)>=10){drop.push(p);continue}");
-must('public/js/07-update.js', "else{p.loot=null;if(p.sp){p.sp=0;spotEnd(p)}p.st='idle';p.t=0;}}}", "else{p.loot=null;if(p.sp){p.sp=0;spotEnd(p)}if(p.again){p.again=0;p.st='cast';p.wait=R(1.5,3);SFX.cast()}else{p.st='idle';p.idleAt=T}p.t=0;}}}\n drop.forEach(leave);");
 must('public/js/05b-comedy.js', "function tugFail(p){", "function tugFail(p){SP.out=true;SP.after=null;");
 must('public/js/05a-spotlight.js', "if(SP.p&&!players.has(SP.p.id))SP.p=null;", "if(SP.p&&!players.has(SP.p.id)){SP.p=null;SP.out=false;}\n if(!SP.p)SP.out=false;");
 must('public/js/05a-spotlight.js', "if(!SP.out&&(SP.t>30||", "if(!SP.out&&(SP.t>30||(SP.k==='catch'&&p.st!=='epic'&&p.st!=='show'&&p.st!=='fall')||");
